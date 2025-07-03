@@ -1,0 +1,143 @@
+---
+title: "Graficación"
+author: "Natalia Morera Calvo"
+format: html
+---
+
+# Carga de paquetes
+
+```{r}
+#| label: carga-paquetes
+#| warning: false
+#| message: false
+
+
+
+library(tidyverse)
+library(DT)
+library(scales)
+library(ggthemes)
+library(hrbrthemes)
+library(plotly)
+
+```
+
+
+```{r}
+# Carga de los datos de países
+paises <- read.csv ("paises.csv")
+```
+
+
+```{r}
+# Tabla de datos de paises
+paises |> 
+  datatable(
+  options = list(
+    pageLength = 5,
+    language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
+  )
+)
+```
+
+
+# Ggplot2
+
+## Gráfico PIB per cápita vs esperanza de vida al nacer
+
+```{r}
+#| label: grafico-01
+#| warning: false
+#| message: false
+
+
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+# con formas y colores correspondientes al continente
+paises |>
+  ggplot(aes(x = GDP_PC, y = LIFE_EXPECTANCY, colT)) +
+   geom_point() +
+  geom_smooth(method = 'lm') +
+  scale_x_continuous(labels = comma, limits = c(0, NA)) 
+```
+
+
+## Paneles
+```{r}
+#| label: grafico-03
+#| warning: false
+#| message: false
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+# + paneles por continente
+paises |>
+  ggplot(aes(x = GDP_PC, y = LIFE_EXPECTANCY)) +
+  geom_point() +
+  facet_wrap(~ CONTINENT, nrow = 2) +
+  scale_x_continuous(labels = comma, limits = c(0, NA))
+```
+## Títulos, etiquetas, estilos y colores
+
+```{r}
+
+#| label: grafico-04
+#| warning: false
+#| message: false
+
+
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+# en África y Europa coloreado por continente
+# + curva de tendencia# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+#  coloreado por continente
+paises |>
+  ggplot(aes(x = GDP_PC, y = LIFE_EXPECTANCY, color = CONTINENT)) +
+  geom_point() +
+  geom_smooth() +
+  scale_x_continuous(labels = comma, limits = c(0, NA)) +
+  scale_y_continuous(labels = comma, limits = c(50, 90)) +
+  ggtitle("PIB per cápita vs esperanza de vida al nacer por continente") +
+  xlab("PIB per cápita  (USD)") +
+  ylab("Esperanza de vida (años)") +
+  labs(caption = "Fuentes: Natural Earth y Banco Mundial",
+       color = "Continente") +
+  labs(color = "Población estimada") +
+  scale_colour_brewer(palette = "YlOrBr", direction = -1) +
+  theme_ipsum() # estilo de hrbrthemes
+```
+
+# Plotly
+
+```{r}
+
+#| label: grafico-05
+#| warning: false
+#| message: false
+
+# Gráfico de dispersión de PIB per cápita vs esperanza de vida al nacer
+grafico_ggplot2 <-
+  paises |>
+  ggplot(aes(x = GDP_PC, y = LIFE_EXPECTANCY, color = CONTINENT)) +
+  geom_point(aes(
+    # datos que se muestran al colocar el ratón sobre un punto
+    text = paste0(
+      "PIB per cápita: ", GDP_PC, "\n",
+      "Esperanza de vida: ", LIFE_EXPECTANCY
+    )
+  )) +
+  scale_x_continuous(labels = comma, limits = c(0, NA)) +
+  scale_y_continuous(labels = comma, limits = c(50, 90)) +
+  ggtitle("PIB per cápita vs esperanza de vida al nacer por continente") +
+  xlab("PIB per cápita  (USD)") +
+  ylab("Esperanza de vida (años)") +
+  labs(caption = "Fuentes: Natural Earth y Banco Mundial",
+       color = "Continente") +
+  labs(color = "Población estimada") +
+  theme_ipsum() # estilo de hrbrthemes
+
+# Gráfico plotly
+ggplotly(grafico_ggplot2, tooltip = "text") |> 
+  config(locale = 'es') # para mostrar los controles en español
+
+
+```
+
+
